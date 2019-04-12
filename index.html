@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Websocket</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/yegor256/tacit@gh-pages/tacit-css-1.4.2.min.css" />
+    <style>
+        .title {
+            text-align: center;
+        }
+
+        .sub-title {
+            color: #ccc;
+        }
+    </style>
+    <script>
+        function connect(user) {
+            var ws = new WebSocket("ws://127.0.0.1:5000/chat?user=" + user);
+
+            ws.onopen = function (evt) {
+                console.log("Connection opened");
+                ws.send("Hello, everyone!");
+            };
+
+            ws.onmessage = function (evt) {
+                console.log("Received Message: " + evt.data);
+                showMessage(evt.data);
+            };
+
+            ws.onclose = function (evt) {
+                console.log("Connection closed.");
+            };
+
+            return ws;
+        }
+
+        function onClose() {
+            if (window.ws != null) {
+                window.ws.send("Goodbye!");
+                setTimeout(() => {
+                    window.ws.close()
+                }, 1000);
+            }
+        }
+
+        function onConnect() {
+            var elUser = document.querySelector('#user');
+            var user = elUser.value
+            if (user !== undefined && user !== null && user !== "") {
+                window.ws = connect(user)
+            }
+        }
+
+        function onSubmit() {
+            var elMessage = document.querySelector('#message');
+            var message = elMessage.value
+            if (message !== undefined && message !== null && message !== "") {
+                window.ws.send(message);
+            }
+        }
+
+        function showMessage(message) {
+            var elMessage = document.createElement('li');
+            elMessage.innerText = message;
+            var elMessages = document.querySelector('#messages');
+            elMessages.prepend(elMessage);
+        }   
+    </script>
+</head>
+
+<body>
+    <section>
+        <header>
+            <h1 class="title">We<span class="sub-title">bsocket</span>Chat :)</h1>
+        </header>
+        <article>
+            <p>
+                <input type="text" id="user" placeholder="your name">
+                <button onclick="onConnect()">Connect</button>
+                <button onclick="onClose()">Disconnect</button>
+            </p>
+            <p>
+                <input type="text" id="message" placeholder="message">
+                <button onclick="onSubmit()">Submit</button>
+            </p>
+            <ul id="messages"></ul>
+        </article>
+    </section>
+</body>
+
+</html>
