@@ -28,7 +28,11 @@ def read_until(sock, sep, buffer=b''):
         buffer += data
         if sep in buffer:
             break
-    result, extra = buffer.split(sep, maxsplit=1)
+    parts = buffer.split(sep, maxsplit=1)
+    if len(parts) == 2 or 1:
+        result, extra = parts
+    else:
+        result, extra = parts[0], b''
     return result, extra
 
 
@@ -128,6 +132,8 @@ def handler(sock_cli, addr_cli):
     try:
         LOG.info('Connected by {}:{}'.format(*addr_cli))
         header_data, extra = read_until(sock_cli, b'\r\n\r\n')
+        if not header_data:
+            return
         print(Back.RED + header_data.decode() + Back.RESET)  # request header
         method, path, version, headers, params = Request.parse_header(header_data)
         content_length = int(headers.get('content-length') or 0)

@@ -25,7 +25,11 @@ def read_until(sock, sep, buffer=b''):
         buffer += data
         if sep in buffer:
             break
-    result, extra = buffer.split(sep, maxsplit=1)
+    parts = buffer.split(sep, maxsplit=1)
+    if len(parts) == 2:
+        result, extra = parts
+    else:
+        result, extra = parts[0], b''
     return result, extra
 
 
